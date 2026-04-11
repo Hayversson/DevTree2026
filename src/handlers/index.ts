@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import User from "../models/User";
+import { hashPassword } from '../utils/auth';
 
 export const createAccount = async (req: Request, res: Response) => {
-    const { email } = req.body; 
+    const { email, password } = req.body; 
 
-    const userExists = User.findOne({ email });
+    const userExists = await User.findOne({ email });
 
     if (userExists) {
         const error = new Error('There is already a user registered with that email.')
@@ -21,6 +22,7 @@ export const createAccount = async (req: Request, res: Response) => {
 
     // Or with two senteces:
     const user = new User(req.body);
+    user.password = await hashPassword(password);
     await user.save();
 
     res.status(201).send('The register was created successfully!...');
