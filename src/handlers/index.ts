@@ -1,21 +1,15 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
 import slug from 'slug';
 import User from "../models/User";
 import { hashPassword, checkPassword } from '../utils/auth';
 
 export const createAccount = async (req: Request, res: Response) => {
-    //Manage errors:
-    let errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
     
     const { email, password } = req.body; 
 
     const userExists = await User.findOne({ email });
 
-    if (userExists) { //debería usarlo si ya tengo validadores en router?
+    if (userExists) { //debería usarlo si ya valido en router?
         const error = new Error('There is already a user registered with that email.')
         return res.status(409).json({ error: error.message })
     }
@@ -45,11 +39,6 @@ export const createAccount = async (req: Request, res: Response) => {
 }
 
 export const login = async (req: Request, res: Response) => {
-    //Managing errors:
-    let errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
 
     const { email, password } = req.body;
 
